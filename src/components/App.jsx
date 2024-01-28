@@ -15,6 +15,7 @@ class App extends Component {
     page: 1,
     largeImageURL: '',
     showModal: false,
+    allImagesLoaded: false,
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -28,6 +29,7 @@ class App extends Component {
       searchQuery: query,
       images: [],
       page: 1,
+      allImagesLoaded: false,
     });
   };
 
@@ -50,6 +52,9 @@ class App extends Component {
           images: [...prevState.images, ...newImages],
           page: prevState.page + 1,
         }));
+        if (newImages.length === 0) {
+          this.setState({ allImagesLoaded: true });
+        }
       })
       .catch(error => console.log(error))
       .finally(() => this.setState({ loading: false }));
@@ -63,14 +68,15 @@ class App extends Component {
   };
 
   render() {
-    const { images, loading, largeImageURL, showModal } = this.state;
+    const { images, loading, largeImageURL, showModal, allImagesLoaded } =
+      this.state;
 
     return (
       <div className={css.App}>
         <Searchbar onSubmit={this.onChangeQuery} />
         <ImageGallery images={images} onImageClick={this.toggleModal} />
         {loading && <Loader />}
-        {!!images.length && !loading && (
+        {!!images.length && !loading && !allImagesLoaded && (
           <Button onLoadMore={this.fetchImages} />
         )}
         {showModal && (
